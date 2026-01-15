@@ -1,0 +1,36 @@
+# Core dependencies
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.0
+
+# Telegram
+telethon==1.35.0
+
+# Encryption & Auth
+cryptography==41.0.7
+bcrypt==4.1.1
+pyjwt==2.8.1
+
+# MT5
+# MetaTrader5==5.0.45  # Uncomment when available on your system
+
+# Async
+asyncio==3.4.3
+aiohttp==3.9.1
+httpx==0.25.2
+
+# Logging
+python-json-logger==2.0.7
+
+# API
+fastapi==0.109.0
+uvicorn==0.27.0
+pydantic-settings==2.1.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.23.2
