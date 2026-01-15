@@ -16,7 +16,7 @@ bcrypt
 pyjwt
 
 # MT5
-# MetaTrader5   # Uncomment when available on your system
+MetaTrader5   # Uncomment when available on your system
 
 # Async
 asyncio
@@ -34,3 +34,7 @@ pydantic-settings
 # Testing
 pytest
 pytest-asyncio
+
+# Validator
+email-validator
+
