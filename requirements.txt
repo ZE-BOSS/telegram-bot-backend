@@ -29,6 +29,7 @@ python-json-logger
 # API
 fastapi
 uvicorn
+uvicorn[standard]
 pydantic-settings
 
 # Testing
