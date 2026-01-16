@@ -57,13 +57,6 @@ class TelegramListener:
         """
         fut = asyncio.get_event_loop().create_future()
         
-        async def callback(msg):
-            if msg.get("type") == "code_response" or msg.get("type") == "password_response":
-                fut.set_result(msg.get("user_input"))
-        
-        # Register a temporary listener
-        manager.add_temporary_listener(user_id, callback)
-        
         # Broadcast the input request
         await manager.broadcast({
             "type": input_type,
