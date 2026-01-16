@@ -69,11 +69,11 @@ class TelegramListener:
             "type": input_type,
             "requires_input": True,
             "message": f"Enter {input_type.replace('_', ' ')}"
-        }, user_id=user_id)
+        })
         
         value = await fut
         return value
-        
+
     async def disconnect(self):
         """Disconnect from Telegram."""
         if self.client:
