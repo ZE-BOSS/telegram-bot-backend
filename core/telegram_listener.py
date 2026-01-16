@@ -29,27 +29,34 @@ class TelegramListener:
     async def connect(self):
         """Connect to Telegram with authentication via WebSocket."""
         try:
-            self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
-            await self.client.start(phone=self.phone)
-            
-            if not await self.client.is_user_authorized():
-                await self.client.send_code_request(self.phone)
-                
-                # Broadcast code request to frontend and wait
-                code = await self._get_user_input("get_code", self.phone)
-                try:
-                    await self.client.sign_in(self.phone, code)
-                except SessionPasswordNeededError:
-                    password = await self._get_user_input("get_password", self.phone)
-                    await self.client.sign_in(password=password)
-            
+            self.client = TelegramClient(
+                self.session_name,
+                self.api_id,
+                self.api_hash
+            )
+
+            # Define async callbacks for code/password
+            async def code_callback():
+                return await self._get_user_input("get_code", self.phone)
+
+            async def password_callback():
+                return await self._get_user_input("get_password", self.phone)
+
+            # Start with callbacks
+            await self.client.start(
+                phone=self.phone,
+                code_callback=code_callback,
+                password=password_callback
+            )
+
             self.is_running = True
             logger.info(f"Connected to Telegram as {self.phone}")
             return True
+
         except Exception as e:
             logger.error(f"Error connecting to Telegram: {e}", exc_info=True)
             return False
-    
+
     async def _get_user_input(self, input_type: str, user_id: UUID = None) -> str:
         """
         Send an input request to the frontend and wait for a response.
