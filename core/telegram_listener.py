@@ -9,6 +9,7 @@ from uuid import UUID
 from datetime import datetime
 from sqlalchemy.orm import Session
 from core.signal_parser import MessageCategory
+from api.websockets import manager
 
 logger = logging.getLogger(__name__)
 
@@ -26,20 +27,21 @@ class TelegramListener:
         self.is_running = False
     
     async def connect(self):
-        """Connect to Telegram with authentication."""
+        """Connect to Telegram with authentication via WebSocket."""
         try:
             self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
-            
             await self.client.start(phone=self.phone)
-            self.is_running = True
-   
-            # Check if already authorized
+            
             if not await self.client.is_user_authorized():
                 await self.client.send_code_request(self.phone)
+                
+                # Broadcast code request to frontend and wait
+                code = await self._get_user_input("get_code", self.phone)
                 try:
-                    await self.client.sign_in(self.phone, input('Enter the code: '))
+                    await self.client.sign_in(self.phone, code)
                 except SessionPasswordNeededError:
-                    await self.client.sign_in(password=input('Enter password: '))
+                    password = await self._get_user_input("get_password", self.phone)
+                    await self.client.sign_in(password=password)
             
             self.is_running = True
             logger.info(f"Connected to Telegram as {self.phone}")
@@ -48,6 +50,30 @@ class TelegramListener:
             logger.error(f"Error connecting to Telegram: {e}", exc_info=True)
             return False
     
+    async def _get_user_input(self, input_type: str, user_id: UUID = None) -> str:
+        """
+        Send an input request to the frontend and wait for a response.
+        input_type: "get_code" or "get_password"
+        """
+        fut = asyncio.get_event_loop().create_future()
+        
+        async def callback(msg):
+            if msg.get("type") == "code_response" or msg.get("type") == "password_response":
+                fut.set_result(msg.get("user_input"))
+        
+        # Register a temporary listener
+        manager.add_temporary_listener(user_id, callback)
+        
+        # Broadcast the input request
+        await manager.broadcast({
+            "type": input_type,
+            "requires_input": True,
+            "message": f"Enter {input_type.replace('_', ' ')}"
+        }, user_id=user_id)
+        
+        value = await fut
+        return value
+        
     async def disconnect(self):
         """Disconnect from Telegram."""
         if self.client:
@@ -153,7 +179,6 @@ class TelegramSignalListener:
         """Process an incoming signal message."""
         try:
             logger.info(f"Processing signal message from channel {message_data['channel_id']}")
-            from api.websockets import manager
             
             # Parse the signal
             if not self.signal_parser:
