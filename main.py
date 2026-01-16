@@ -76,7 +76,7 @@ class TradingSignalPlatform:
             
             self.signal_parser = SignalParser(model=self.config.llm.model)
             self.credential_manager = CredentialManager()
-            self.mt5_executor = MT5Executor(mt5_path=self.config.mt5.mt5_path)
+            self.mt5_executor = MT5Executor()
             self.sync_manager = PositionSyncManager(self.Session)
             
             logger.info("All components initialized")

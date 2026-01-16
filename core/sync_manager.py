@@ -20,7 +20,7 @@ class PositionSyncManager:
     def __init__(self, session_factory):
         self.session_factory = session_factory
         config = load_config()
-        self.mt5_executor = MT5Executor(mt5_path=config.mt5.mt5_path)
+        self.mt5_executor = MT5Executor()
         self.credential_manager = CredentialManager()
         self.is_running = False
         self._task = None

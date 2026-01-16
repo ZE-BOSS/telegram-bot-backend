@@ -455,7 +455,7 @@ async def execute_signal(
         # Import here to avoid circular imports
         from core.mt5_executor import MT5Executor
         config = load_config()
-        mt5_executor = MT5Executor(mt5_path=config.mt5.mt5_path)
+        mt5_executor = MT5Executor()
         
         result = await executor.execute_signal(
             request.signal_id,
@@ -676,7 +676,7 @@ async def confirm_execution(
         credential_manager = CredentialManager()
         from core.mt5_executor import MT5Executor
         config = load_config()
-        mt5_executor = MT5Executor(mt5_path=config.mt5.mt5_path)
+        mt5_executor = MT5Executor()
  
         result = await executor.execute_signal(
             signal_id=execution.signal_id,
